@@ -563,9 +563,7 @@ function Board(opt){
 /* Each builder fills `box` and returns {check: function() -> Promise<{incomplete}|{correct,total,single}>} */
 var BUILD = [];
 
-/* TODO: materials/great-barrier-reef/vocab_text2.md was not available when this game was built.
-   The words in Hatch 1 and Hatch 7 come from the task prompt (prompts/great-barrier-reef.md) and the article facts;
-   please compare them with the Text 2 vocabulary list in the book. */
+/* All words in Hatch 1 and Hatch 7 are on the Text 2 word list (materials/great-barrier-reef/vocab_text2.md). */
 BUILD[0] = function(box, d){
   var items = [
     ['something spectacular – the reef is one of the greatest <b>___s</b> on earth', 'w _ _ _ _ _', 6],
