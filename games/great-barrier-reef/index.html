@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>REEF LAB – Escape from the Great Barrier Reef</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230e8a96'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%23ffd9a8' stroke-width='6'/%3E%3C/svg%3E">
+<style>
+:root{
+  --deep:#03203a; --sea:#0a4a6e; --teal:#0e8a96; --aqua:#45d3cb; --coral:#ff7058; --coral-d:#e2553f;
+  --sand:#ffd9a8; --paper:#f4fbfb; --ink:#0b2233; --muted:#4b6574; --ok:#1fa463; --warn:#ffb347; --bad:#ff4d4d;
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{margin:0;padding:0}
+body{color:#fff;background:var(--deep);font:19px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+#bg{position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,#0c6a8f 0%,#08466b 35%,#04233a 75%,#021829 100%);overflow:hidden}
+#bg .ray{position:absolute;top:-10%;width:18%;height:80%;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0));transform:skewX(-14deg);filter:blur(6px)}
+.bubble{position:absolute;bottom:-30px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);animation:rise linear infinite}
+@keyframes rise{0%{transform:translate(0,0)}50%{transform:translate(12px,-55vh)}100%{transform:translate(-6px,-115vh)}}
+@media (prefers-reduced-motion:reduce){.bubble{animation:none;display:none}}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 40px}
+h1,h2,h3{line-height:1.2;margin:.4em 0}
+h1{font-size:34px;letter-spacing:.02em}
+h2{font-size:27px}
+h3{font-size:22px}
+.hidden{display:none!important}
+.btn{min-height:52px;min-width:52px;padding:10px 22px;border-radius:14px;border:0;background:var(--coral);color:#fff;font-weight:700;font-size:20px;box-shadow:0 4px 0 var(--coral-d);touch-action:manipulation}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--coral-d)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.btn.sec{background:rgba(255,255,255,.14);box-shadow:0 4px 0 rgba(0,0,0,.25);color:#fff}
+.btn.dark{background:var(--teal);box-shadow:0 4px 0 #0a6670}
+.btn.small{min-height:44px;font-size:17px;padding:6px 14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.card{background:var(--paper);color:var(--ink);border-radius:var(--radius);padding:18px 20px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.glass{background:rgba(3,32,58,.62);border:1px solid rgba(255,255,255,.18);border-radius:var(--radius);padding:16px 18px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.note{font-size:17px;color:var(--muted)}
+.glass .note{color:#cfe6ee}
+input[type=text],textarea{background:#fff;color:var(--ink);border:2px solid #9fc3cf;border-radius:12px;padding:10px 12px;font-size:20px;min-height:50px;width:100%}
+input[type=text]:focus,textarea:focus{outline:3px solid var(--aqua);border-color:var(--teal)}
+:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+
+/* ---------- top bar ---------- */
+#topbar{position:sticky;top:0;z-index:20;background:rgba(2,24,41,.92);border-bottom:1px solid rgba(255,255,255,.15);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#topbar .wrap{padding:8px 16px;display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center}
+.o2{flex:1 1 300px;display:flex;align-items:center;gap:10px;min-width:0}
+.o2 svg{flex:0 0 auto}
+.o2bar{flex:1;height:22px;border-radius:11px;background:rgba(255,255,255,.15);overflow:hidden;min-width:60px}
+.o2fill{height:100%;width:100%;background:linear-gradient(90deg,var(--aqua),#7ff0e3);transition:width .4s linear,background .4s}
+.o2.low .o2fill{background:linear-gradient(90deg,var(--warn),#ffd58a)}
+.o2.crit .o2fill{background:linear-gradient(90deg,var(--bad),#ff8a8a)}
+.o2time{font-variant-numeric:tabular-nums;font-weight:800;font-size:24px;min-width:92px;text-align:right}
+.o2.crit .o2time{color:#ff8f8f}
+.o2.ot .o2time{color:#ff5c5c}
+.o2.ot .o2bar{background:rgba(255,77,77,.35)}
+.teamlbl{font-weight:700;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hintsleft{display:flex;align-items:center;gap:4px;font-weight:700}
+.inv{display:flex;gap:5px;align-items:center}
+.inv .slot{width:34px;height:40px;border-radius:8px;border:2px dashed rgba(255,255,255,.35);display:grid;place-items:center;font-weight:900;font-size:22px;color:var(--ink)}
+.inv .slot.got{background:var(--sand);border:2px solid #fff}
+.penalty{position:fixed;z-index:60;font-weight:900;font-size:30px;color:#ff8f8f;text-shadow:0 2px 6px #000;pointer-events:none}
+#soundBtn{min-height:44px;min-width:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:transparent;display:grid;place-items:center}
+
+/* ---------- start ---------- */
+.start{padding-top:24px}
+.start .hero{display:grid;grid-template-columns:1fr;gap:16px;align-items:center}
+@media (min-width:900px){.start .hero{grid-template-columns:1.1fr .9fr}}
+.start ul{padding-left:1.1em;margin:.4em 0}
+.start li{margin:.3em 0}
+.kicker{color:var(--sand);font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:16px}
+.bookbox{display:flex;gap:12px;align-items:center;background:var(--sand);color:var(--ink);padding:12px 14px;border-radius:14px;font-weight:700;margin:10px 0}
+
+/* ---------- map ---------- */
+#mapSvg{width:100%;height:auto;max-height:calc(100vh - 210px);min-height:420px;display:block;border-radius:20px}
+.node{cursor:pointer}
+.node .ring{fill:#5d7482;stroke:#2c3e4a;stroke-width:5}
+.node .door{fill:#8aa0ac;stroke:#3a4f5c;stroke-width:4}
+.node .num{fill:#24343e;font-weight:900;font-size:28px;text-anchor:middle;dominant-baseline:central}
+.node .lbl{fill:#e6f4f8;font-size:20px;font-weight:700;text-anchor:middle;paint-order:stroke;stroke:#03203a;stroke-width:5px;stroke-linejoin:round}
+.node.locked{cursor:default}
+.node.locked .lbl{fill:#8fb0bf}
+.node.current .ring{fill:var(--coral);stroke:#fff}
+.node.current .door{fill:#ffd2c8;stroke:#c64a37}
+.node.current .glow{animation:pulse 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.75;transform:scale(1.18)}}
+.node.solved .ring{fill:var(--aqua);stroke:#fff}
+.node.solved .door{fill:#03203a;stroke:#2a6b80}
+.node.solved .num{fill:var(--sand);font-size:30px}
+.node:focus{outline:none}
+.node:focus-visible .ring{stroke:var(--sand);stroke-width:8}
+.maphead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* ---------- hatch view ---------- */
+.hhead{display:flex;gap:14px;align-items:center;margin:16px 0 10px}
+.hbadge{flex:0 0 auto;width:64px;height:64px}
+.hhead h2{margin:0}
+.hhead .sub{color:var(--sand);font-weight:700;font-size:17px;letter-spacing:.05em;text-transform:uppercase}
+.task{margin-bottom:14px}
+.task p{margin:.35em 0}
+.book{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);background:var(--sand);border-radius:10px;padding:4px 10px;font-size:17px}
+.actions{margin-top:16px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(2,24,41,.85);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius)}
+.actions .row{justify-content:space-between}
+.feedback{min-height:30px;margin:6px 0;font-weight:700;font-size:20px}
+.feedback.bad{color:#ffb0b0}
+.feedback.info{color:var(--sand)}
+.feedback.ok{color:#9ff5c6}
+.cool{display:flex;gap:10px;align-items:center;font-weight:700;color:#ffd58a}
+.coolbar{flex:1;height:10px;background:rgba(255,255,255,.15);border-radius:5px;overflow:hidden;min-width:80px}
+.coolbar div{height:100%;background:#ffd58a;width:100%}
+.hintbox{border-left:6px solid var(--sand);background:rgba(255,217,168,.14);padding:10px 14px;border-radius:10px;margin:10px 0;font-size:19px}
+
+/* items */
+.qlist{display:grid;gap:12px}
+.q{display:grid;grid-template-columns:40px 1fr;gap:6px 12px;align-items:start}
+.q .n{width:40px;height:40px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800}
+.pattern{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.18em;color:var(--teal);font-weight:800;font-size:20px}
+.q .field{grid-column:2}
+
+.lock{display:flex;gap:12px;justify-content:center;padding:16px;background:linear-gradient(#3b4d59,#22313b);border-radius:20px;border:4px solid #586c79;box-shadow:inset 0 4px 12px rgba(0,0,0,.5)}
+.wheel{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wheel button{width:72px;height:52px;border-radius:12px;border:0;background:#5f7685;color:#fff;font-size:24px;touch-action:manipulation}
+.wheel button:active{background:#7a93a3}
+.wheel .d{width:72px;height:84px;border-radius:12px;background:linear-gradient(#e9f2f4,#fff 45%,#cfdde2);color:var(--ink);display:grid;place-items:center;font-size:52px;font-weight:900;font-variant-numeric:tabular-nums;box-shadow:inset 0 3px 8px rgba(0,0,0,.3)}
+.wheel .wl{font-weight:800;color:#cfe6ee;font-size:16px}
+.numq{display:grid;grid-template-columns:44px 1fr 120px;gap:10px;align-items:center;margin:8px 0}
+.numq .n{width:44px;height:44px;border-radius:10px;background:var(--coral);color:#fff;display:grid;place-items:center;font-weight:900}
+
+/* boards */
+.pool{display:flex;flex-wrap:wrap;gap:10px;min-height:70px;padding:12px;border-radius:14px;border:2px dashed #9fc3cf;background:#e6f3f5}
+.pool.over,.slot.over{outline:3px solid var(--coral);outline-offset:1px}
+.tile{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;min-height:52px;padding:10px 14px;border-radius:12px;border:2px solid #0e8a96;background:#fff;color:var(--ink);font-weight:600;font-size:18px;text-align:left;box-shadow:0 3px 0 #0a6670;line-height:1.3}
+.tile.sel{background:#ffe6df;border-color:var(--coral);box-shadow:0 3px 0 var(--coral-d)}
+.tile.src{opacity:.35}
+.ghost{position:fixed;z-index:100;pointer-events:none;opacity:.92;transform:rotate(-2deg);box-shadow:0 12px 26px rgba(0,0,0,.4)}
+.chain{display:grid;gap:10px;margin:12px 0}
+.cslot{display:grid;grid-template-columns:46px 1fr;gap:10px;align-items:center}
+.cslot .n{width:46px;height:46px;border-radius:50%;background:var(--coral);color:#fff;display:grid;place-items:center;font-weight:900;font-size:22px}
+.slot{min-height:60px;border-radius:12px;border:2px dashed #8bb3c0;background:#eef7f8;display:flex;align-items:center;padding:4px;cursor:pointer}
+.slot .tile{width:100%}
+.slot:empty::after{content:attr(data-ph);color:#7b97a3;font-size:17px;padding:0 10px}
+.arrowdown{color:var(--coral);font-weight:900;text-align:center;line-height:1;margin:-4px 0}
+.tf{display:grid;gap:10px}
+.tfrow{display:grid;grid-template-columns:36px 1fr;gap:8px 10px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #cfe3e8}
+.tfrow .n{font-weight:900;color:var(--teal);font-size:20px}
+.tfbtns{grid-column:2;display:flex;gap:8px;flex-wrap:wrap}
+.tfbtns button{min-height:48px;min-width:96px;border-radius:12px;border:2px solid #9fc3cf;background:#f1f8f9;color:var(--ink);font-weight:700;font-size:18px;touch-action:manipulation}
+.tfbtns button[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.explain{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:10px 0}
+.explain div{background:#e6f3f5;border-radius:10px;padding:8px 12px;font-size:17px}
+.log{background:#fbf3e2;color:#3a2a14;border-radius:8px;padding:20px 22px;box-shadow:0 8px 24px rgba(0,0,0,.3);background-image:repeating-linear-gradient(180deg,transparent 0 39px,rgba(120,90,40,.18) 39px 40px);font-family:Georgia,"Times New Roman",serif;font-size:20px;line-height:2}
+.log .stamp{display:inline-block;border:3px solid #b23a2b;color:#b23a2b;font:800 15px/1.2 -apple-system,Segoe UI,sans-serif;padding:4px 8px;border-radius:6px;transform:rotate(-3deg);letter-spacing:.06em;text-transform:uppercase}
+.log input[type=text]{display:inline-block;width:190px;min-height:44px;padding:4px 8px;font-size:19px;font-family:-apple-system,Segoe UI,sans-serif;vertical-align:baseline;margin:2px 0}
+.log .verb{font-style:italic;color:#7a5520}
+.match{display:grid;gap:12px;margin:12px 0}
+.mrow{display:grid;grid-template-columns:1fr 1.2fr;gap:10px;align-items:center}
+.mrow .threat{background:var(--ink);color:#fff;border-radius:12px;padding:12px 14px;font-weight:700;min-height:60px;display:flex;align-items:center}
+.ticks{display:grid;gap:8px;margin-top:8px}
+.tick{display:flex;gap:12px;align-items:center;min-height:56px;padding:8px 14px;border-radius:12px;border:2px solid #9fc3cf;background:#fff;color:var(--ink);text-align:left;font-size:19px;touch-action:manipulation}
+.tick .box{flex:0 0 auto;width:30px;height:30px;border-radius:7px;border:3px solid var(--teal);display:grid;place-items:center;font-weight:900;color:#fff}
+.tick[aria-pressed=true]{border-color:var(--teal);background:#e1f4f3}
+.tick[aria-pressed=true] .box{background:var(--teal)}
+.report{position:relative;background:#fff;border-radius:6px;padding:20px 22px;line-height:2.4;font-size:20px;color:var(--ink);box-shadow:0 8px 24px rgba(0,0,0,.3);clip-path:polygon(0 0,100% 0,100% 92%,96% 100%,90% 95%,84% 100%,76% 96%,68% 100%,60% 95%,52% 100%,44% 96%,36% 100%,28% 95%,20% 100%,12% 96%,5% 100%,0 95%)}
+.report h3{font-family:Georgia,serif;margin-top:0;line-height:1.3}
+.report ol{margin:0;padding-left:1.4em}
+.gap{display:inline-flex;vertical-align:middle;min-width:150px;min-height:48px;margin:2px 0}
+.gap .tile{padding:6px 10px;min-height:42px;font-size:18px}
+.wordbank .tile{font-weight:800}
+.lslots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.lslots .slot{width:70px;height:84px;justify-content:center;padding:0}
+.lslots .tile,.letters .tile{width:62px;height:74px;font-size:40px;font-weight:900;text-align:center;padding:0;display:grid;place-items:center;background:var(--sand);border-color:#c98f3e;box-shadow:0 4px 0 #a8732d}
+.letters{justify-content:center}
+
+/* ---------- overlays ---------- */
+.overlay{position:fixed;inset:0;z-index:88;background:rgba(1,14,26,.78);display:grid;place-items:center;padding:16px}
+.modal{max-width:560px;width:100%}
+.modal .row{justify-content:flex-end;margin-top:14px}
+#openAnim{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(1,14,26,.8)}
+#openAnim svg{width:min(70vw,340px);height:auto}
+.flyletter{position:fixed;z-index:95;width:110px;height:130px;border-radius:18px;background:var(--sand);color:var(--ink);display:grid;place-items:center;font-size:84px;font-weight:900;box-shadow:0 0 0 6px #fff,0 10px 40px rgba(255,217,168,.7)}
+.openmsg{position:fixed;left:0;right:0;bottom:16%;text-align:center;font-size:28px;font-weight:900;z-index:96;text-shadow:0 2px 8px #000;pointer-events:none}
+
+/* ---------- certificate ---------- */
+.cert{position:relative;background:#fffaf0;color:var(--ink);border-radius:20px;padding:28px 24px;text-align:center;border:10px solid var(--teal);box-shadow:0 0 0 4px var(--sand),0 12px 30px rgba(0,0,0,.4);overflow:hidden}
+.cert h2{font-family:Georgia,serif;font-size:40px;color:var(--teal);margin:.2em 0}
+.cert .team{font-family:Georgia,serif;font-size:34px;font-weight:700;color:var(--coral-d);border-bottom:2px solid var(--sand);display:inline-block;padding:0 18px;margin:8px 0;word-break:break-word}
+.cert .stats{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:14px 0}
+.cert .stat{background:#e6f3f5;border-radius:12px;padding:8px 16px}
+.cert .stat b{display:block;font-size:28px}
+.cert .ot{color:#c62828}
+
+/* ---------- teacher ---------- */
+#teacherBtn{position:fixed;left:10px;bottom:10px;z-index:70;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.4);background:#2b1b3d;color:#fff;padding:6px 12px;font-size:16px}
+#teacherPanel{position:fixed;inset:0;z-index:85;background:rgba(1,10,20,.9);overflow:auto;padding:16px}
+#teacherPanel .card{max-width:980px;margin:0 auto}
+table.sol{width:100%;border-collapse:collapse;font-size:17px}
+table.sol th,table.sol td{border-bottom:1px solid #cfe3e8;padding:8px;text-align:left;vertical-align:top}
+table.sol th{background:#e6f3f5}
+table.sol tr.cur td{background:#fff1ec}
+.big{font-size:24px}
+
+@media (max-width:820px){
+  h1{font-size:30px}
+  .mrow{grid-template-columns:1fr}
+  .numq{grid-template-columns:44px 1fr 100px}
+  .wheel .d{width:64px;height:76px;font-size:46px}
+  .wheel button{width:64px}
+}
+@media print{#topbar,.actions,#teacherBtn,#bg{display:none}}
+</style>
+</head>
+<body>
+<div id="bg" aria-hidden="true"></div>
+
+<header id="topbar" class="hidden">
+  <div class="wrap">
+    <div class="o2" id="o2" role="timer" aria-label="Oxygen left">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="9" y="6" width="16" height="25" rx="7" fill="#45d3cb" stroke="#fff" stroke-width="2"/><rect x="13" y="1" width="8" height="6" rx="2" fill="#fff"/><text x="17" y="22" text-anchor="middle" font-size="10" font-weight="900" fill="#03203a">O₂</text></svg>
+      <div class="o2bar"><div class="o2fill" id="o2fill"></div></div>
+      <div class="o2time" id="o2time">40:00</div>
+    </div>
+    <div class="teamlbl" id="teamLbl"></div>
+    <div class="hintsleft" id="hintsLeft" aria-label="Hints left"></div>
+    <div class="inv" id="inv" aria-label="Collected letters"></div>
+    <button id="soundBtn" type="button" aria-label="Sound off" title="Sound"></button>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<script>
+(function(){
+'use strict';
+
+/* ===================== DATA (generated) ===================== */
+/* Solutions are stored only as SHA-256 hashes. Teacher data is obfuscated. */
+var H = /*@HASHES@*/{"h1.1":["882846bba171023080279fe6f20161e486dd38c826f5457bf434058fd70468be","e9946b021b45c767e39cf7be5670e64b5507a517f4e771ad1c8826b07a5ebd2c"],"h1.2":["b9daf33f12c936946c9d705e3e4ac5ba9df918f221571f455306adee5dc2ee42"],"h1.3":["f44f37483ae86b8f256efab3efb94bf0eeb7c71fa1e03f2f03803276eb5f3ce3","7fb9cb969f1cafaa5fe0ed07d2d8bf8852b0c9e17b3d0d01f1b7d2be2e992df7"],"h1.4":["a838b2e0fea851681e826424d1db6264d1f5f5a524ed05881c02e8bba8c1d567"],"h1.5":["b715708310992235262b3651b584af833ad41c6e8a88f833deec1e1c74273b15","bf45b843054b7b2d1e5367d5dff8535312721807e7b8c5d2289c6c7486e32164"],"h1.6":["66d19a7f666a0d95f098009cec4274b326a58ff369d5ebd3b68f2d48233ab00a"],"h2":["21aaa82aad7bb7c7275f7fce57d16279f4088f294583adb15bcadb4933f12725"],"h3.1":["c248faebc3c810ef56bbf5bdcf26e90bbae5186d8e9db3a0f9c7bae9d47e921c"],"h3.2":["bf684a12e3530bbc4cd16c152d28a353d2ea1ac02f5882de0409cb1c8bfc39ec"],"h3.3":["e285fbdad6fab76bae6d3bfe396db8c789fc72c9600de5d40e5a7e3945e14255"],"h3.4":["10e9e64a83b75772d3dc90c8b41168e5bb0ae797af761abc8cff1ed9269b0136"],"h3.5":["f48c11ad5ca69dd7795e68585b0daa89ac23c369c88ea90c411a97b4fb36f7b1"],"h4.1":["98c1eae14462af92ee41ea73e1324e806003f2d8f530bd9c8d02783342ad7ed1"],"h4.2":["68760f7580403f9bb73bc1ddc0463a844513329989ca7878cd4527fa11f7b3c7"],"h4.3":["c1cdb17342f10f6fb416c434bccc870f1b28af512e24a3aeeca526b3b0f7d1eb"],"h4.4":["fba17d5305e66f3f2be58144c6c729b6efc023405e0dc33fb8d154c621fb1588"],"h4.5":["a23494c326fecf469fda2f328d764eb1b5b05dfe239d52fc2843d768bc829af4"],"h4.6":["08f4bcb4f5b81805637e462d276879d122cdd605ce4abb992fde887c04978086"],"h4.7":["59c45d661b71f91cb71a76ea15fc2a3d9d80a710e9329f25b9feca63a436f179"],"h4.8":["e264c03a05f02c8ff2c204b2c38bdda6e7dad96e16b1846d1f78bfc8e94a66cc"],"h4.9":["36b6e69ec1e3e3da8b7eeb4f3e25bd2b67db644906e1d575e99da68f6ad4bd7c"],"h5.1":["e0d45974697442313e0c4e6fbc0ab43c76ce33a80e54b6e6ecb84c93308fc275","4f44de937ffc95409c386ec092effae981a9526bfb8e1912a33a6ba2a070880a"],"h5.2":["a0f95fca82b08850c20698da3ef838161b6e8bd0f85a5a09aca48caf761a4964"],"h5.3":["3139448ad7426ab691f68a6c78c8bbde6490af6142cfe4f9493369f4aff72157"],"h5.4":["6f3ae845d9ce0694883c5135378947d3c8409b0530e92baa54432e1ecedca774"],"h5.5":["e531f133e58b78acc74e235e5d159ef3335f6ad63ab3aa7153f85f5e37bec971"],"h5.6":["4c69ff2e3e62056ca286fb3de9b72ab5d01c71d87a900fb4c6ad7a544b91a997","30ca5afc3f4d3067db56496601b7f5a2594aada9234151d821ebf0279419dbcb"],"h6.a1":["eab44dbf8d3548320f7cb3ba1a8026363077a7146e84b9d24460b02bf8522d8e"],"h6.a2":["c935ded74701112f63201e9b80972ed026cb53e65403796cc6f1d71ba524d1ae"],"h6.a3":["0cf946cccbfe2b10446900f90d8f0b84b489ad8ffc7ac349e1d0b6a10258f78f"],"h6.b":["dd84b86f7a27fb53cfc178e70b86fbfaa777a544b6ee688e9a6ffc95b84848ff","c8d8b96f2f6497d9d4832dd47cbda894d3f995876acf98286ada67efed9b089b"],"h7.1":["893e55ae5d17cb0071035e9b4c6a36ca9779434929628ff861a7bbcef4c26592"],"h7.2":["9a7e128e7587ca901c9a2f8266789b95f395f3cdb30b22ed84d6e099b0a816ba"],"h7.3":["407f8d4c65e9ce5e11b73eeec3aaf222b348635e1784e8995b2b7958bbce2c95"],"h7.4":["b81b6e2495316af386481647a33c3d63cbddd2f2d7f7eb0f17caadebb07c2011"],"h7.5":["ba65e01080477441bdc42f863605209c49f3ff54bdd6d3c57640a6423556b6e3"],"h7.6":["930de086146dc8d3e3766fc840244874959ca90c5b8b00d605249d373c3d5422"],"h7.7":["d78c9aa0d7effe314c60f44d8f40e88c335b511b74a625e7889127a23a96bbf4"],"final":["5d833850ab0da4b2fb1dcafe9ba84802a34bf24a05209292bea631fffb8974d7"],"pin":["7aa6f84d1e9b022aa6e09e6b7f7fe835ebcfcfcff6b13c33252b42318a008613"]};
+var TB = "GE0BDgAPSD4+RBwZFQwBFgQeDbDSRVQNXAEMHAsSGEgfRafRDQpCFxoAFQBIUqfSRhkZBgYcBggCTAYMCggN+9VDWlIRA0EeEBEDDfvVQ1lSEgNBBxEMCUMbP080UCBMH0FVVUbvjkIhT0FUXA2w0kUlDQpCodhSJUwfUofj9A1aDQcKUlNaGEdHOEp2G1NDLB4IAUwGAEUFRVgMBApSBglZAUUSCV9KB01PkOf+DUBFMQ5IGRUCGxcTTFkXCBUDX1gWFh0XQQtIBhZFDkReCgYdXEGOq+BFVkZ5UQdDDh4GDUhSCgtGWVEHQwwdEw1BUgEMAwMZgOX9UlVMeRoARQVfXAMXGgAEHw0GDQQSDVcHBgtSAABKEwBFAEJLQgUAHQVMSRsAS0bPv/BDWlI2BEIeAEUHX1wDEE8dB0xZGgBFFEhcBEMNFwIDQBdFCQ9GXEIEBx0SGA0GChIIXhdAT003GRhfE19FFUhYAAodFhJMQhxFFQpMTQQMHR8SVw0BDQwWDVYXFxwbBQkNBg0ARkFYDAZNL003D0NFMUYFVQ5NT0qD7L5LTEWkmhlQQylSSQBBXEVThK2qWkpPsNZMHlIxRU5BVUxDXUaD7L5AU0xG745CV088NUzvxUVQRnkZSg8DXEFfFZDl9lIdEEKh2FJXTGtSTQkKAxlWW43y8lkdW0Wn0Q0OQjdPWg0AA1JQXIStqlRSRlKj2w1KRSNGBVUOTU9EU46t4VNWTw371UNWUi84Dy9JPkQcGRUGHRdBGF8TEwAKQVAMBE9dQRtIAABFEl9YFAYDGw8LDZDl9kZaXAwXTV5DXg0FBBZGQVYNCAYcBkzP8vZFDkRNQE9NQUEZXhcBRRJCGQAGTV5DWA0BBBJGAhkKAgtSEglIHEc4SnYbI1lPEQ0FQBMRAEZOUQMNCBdBjqvgRQYJX1gOQw0eBA1OGgwLAQ371UMfHgAYSx0XCBUN2+TxTwEEDU8bFwEVz7n7QxgTEhhIUhUKCkFMFgYcUhUESFISBBJIS0Kh2FISBEQCFkWEq6tCDAYeQR9dGwkJRgUKQggCW0NADzBfRRVdXAwXTx8IAEEbCgsVDVYEQy4HEhhfEwkMB0MZBgwDHgAeXlKn0kZeTRAKDAYEHg0eBBIVDV8NEU8BCQVdAUc4SnYbU0McBhMJWRENABUN+9VDXVIVBF8XBBEVDfvVQ1xSAwBIEwYND0NeQqHYUlVMXR0JCRNZXBFDrcVBWQ0RCgsVSEgXBgERBEzvxUVTRkpWFAYdHAwJQwZFp9ENDkIQAB4UGEQdC0VOSEEWEQ5IQQhIAREMCExNCwwBXkEcQRMRAwlfVEtBMl46Tn83JiowaGtCSx9cQV4eXkUJSA0MUEpNLzwR";
+
+/* ===================== CONFIG ===================== */
+var STORE = 'reeflab-gbr-v1';
+var TOTAL = 40 * 60, PEN = 30, LOCKS = 15, HINTCOST = 60, MAXHINTS = 3;
+var LETTERS = ['O','R','E','V','C','E','R'];
+var HATCHES = [
+  {name:'Word Scanner', skill:'Vocabulary', hint:'Look at the vocabulary for Text 2 – all the words are in the article.'},
+  {name:'Number Lock', skill:'Reading for detail', hint:'The numbers are in lines 4–5, 9–10, 35 and 50–51.'},
+  {name:'Chain Reaction', skill:'Cause and effect', hint:'Read lines 22–33 again. What happens first?'},
+  {name:'Truth Detector', skill:'True / False / Not in the text', hint:'Check statements 3 and 6 again: lines 24–26 and 48–50.'},
+  {name:"Captain's Logbook", skill:'Grammar', hint:'Long action → past progressive (was/were + -ing). Short action that interrupts → simple past.'},
+  {name:'Threat Map', skill:'Threats and measures', hint:'Look at the headings in the article: Tourists, Ships and oil spills, What can the government do …?'},
+  {name:'Damaged Report', skill:'Vocabulary in context', hint:'Read the whole sentence first. Do you need a noun or a verb?'},
+  {name:'Final Hatch', skill:'Codeword', hint:'Look at line 52.'}
+];
+
+/* ===================== HELPERS ===================== */
+function $(s, r){ return (r || document).querySelector(s); }
+function el(tag, attrs, kids){
+  var e = document.createElement(tag);
+  if (attrs) for (var k in attrs){
+    var v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.slice(0,2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  if (kids != null) (Array.isArray(kids) ? kids : [kids]).forEach(function(c){
+    if (c == null) return;
+    e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return e;
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function fmt(sec){
+  sec = Math.max(0, Math.floor(sec));
+  var m = Math.floor(sec / 60), s = sec % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+function norm(s){
+  return String(s == null ? '' : s).replace(/[‘’ʼ`´]/g, "'").toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+/* SHA-256: crypto.subtle, with a small JS fallback for insecure contexts (e.g. http on a local network). */
+function sha256js(ascii){
+  function rr(v, a){ return (v >>> a) | (v << (32 - a)); }
+  var bytes = unescape(encodeURIComponent(ascii)), i, j, words = [], bl = bytes.length * 8;
+  var hash = [], k = [], pc = 0, isC = {};
+  for (var c = 2; pc < 64; c++){
+    if (!isC[c]){
+      for (i = 0; i < 313; i += c) isC[i] = c;
+      hash[pc] = (Math.pow(c, .5) * 4294967296) | 0;
+      k[pc++] = (Math.pow(c, 1/3) * 4294967296) | 0;
+    }
+  }
+  hash = hash.slice(0, 8);
+  bytes += '\x80';
+  while (bytes.length % 64 - 56) bytes += '\x00';
+  for (i = 0; i < bytes.length; i++){
+    j = bytes.charCodeAt(i);
+    words[i >> 2] |= j << ((3 - i) % 4) * 8;
+  }
+  words[words.length] = (bl / 4294967296) | 0;
+  words[words.length] = bl;
+  for (j = 0; j < words.length;){
+    var w = words.slice(j, j += 16), old = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++){
+      var w15 = w[i - 15], w2 = w[i - 2], a = hash[0], e = hash[4];
+      var t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ (~e & hash[6])) + k[i] +
+        (w[i] = i < 16 ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);
+      var t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(t1 + t2) | 0].concat(hash);
+      hash[4] = (hash[4] + t1) | 0;
+    }
+    for (i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;
+  }
+  var out = '';
+  for (i = 0; i < 8; i++) for (j = 3; j + 1; j--){ var b = (hash[i] >> (j * 8)) & 255; out += (b < 16 ? '0' : '') + b.toString(16); }
+  return out;
+}
+function sha256(str){
+  try {
+    if (window.crypto && crypto.subtle && window.isSecureContext !== false){
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function(buf){
+        return Array.prototype.map.call(new Uint8Array(buf), function(b){ return (b < 16 ? '0' : '') + b.toString(16); }).join('');
+      }).catch(function(){ return sha256js(str); });
+    }
+  } catch (e) {}
+  return Promise.resolve(sha256js(str));
+}
+function check(key, value){
+  return sha256('reeflab|' + key + '|' + norm(value)).then(function(h){ return (H[key] || []).indexOf(h) >= 0; });
+}
+function teacherData(){
+  try {
+    var raw = atob(TB), key = 'coral-reef-9b', out = '';
+    for (var i = 0; i < raw.length; i++) out += String.fromCharCode(raw.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    return JSON.parse(decodeURIComponent(escape(out)));
+  } catch (e) { return null; }
+}
+
+/* ===================== STATE ===================== */
+function fresh(){
+  return {v:1, team:'', started:false, startTime:0, penalty:0, hints:[], progress:0, lockUntil:0,
+          drafts:{}, view:'map', otNotified:false, finished:false, finishRemaining:null, reflection:'', sound:false};
+}
+function load(){
+  try {
+    var raw = localStorage.getItem(STORE);
+    if (!raw) return null;
+    var s = JSON.parse(raw);
+    if (!s || s.v !== 1) return null;
+    var f = fresh();
+    for (var k in f) if (!(k in s)) s[k] = f[k];
+    return s;
+  } catch (e) { return null; }
+}
+var S = load() || fresh();
+function save(){ try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) {} }
+function now(){ return Date.now(); }
+function remaining(){
+  if (S.finished && S.finishRemaining != null) return S.finishRemaining;
+  if (!S.started) return TOTAL;
+  return TOTAL - (now() - S.startTime) / 1000 - S.penalty;
+}
+function hintsLeft(){ return MAXHINTS - S.hints.length; }
+function lockLeft(){ return Math.max(0, (S.lockUntil - now()) / 1000); }
+function draft(i){ return S.drafts['h' + i] || (S.drafts['h' + i] = {}); }
+
+/* ===================== SOUND (off by default) ===================== */
+var actx = null;
+function beep(type){
+  if (!S.sound) return;
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    var seq = type === 'ok' ? [523, 659, 784, 1047] : type === 'bad' ? [220, 165] : [440];
+    seq.forEach(function(f, i){
+      var o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + i * 0.12;
+      o.type = type === 'bad' ? 'sawtooth' : 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.15, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + 0.22);
+    });
+  } catch (e) {}
+}
+function renderSound(){
+  var b = $('#soundBtn');
+  b.innerHTML = S.sound
+    ? '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M3 9h5l6-5v18l-6-5H3z" fill="#fff"/><path d="M18 8c2 2 2 8 0 10M21 5c4 4 4 12 0 16" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'
+    : '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M3 9h5l6-5v18l-6-5H3z" fill="#fff"/><path d="M18 9l6 8M24 9l-6 8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>';
+  b.setAttribute('aria-label', S.sound ? 'Sound on' : 'Sound off');
+}
+$('#soundBtn').addEventListener('click', function(){ S.sound = !S.sound; save(); renderSound(); beep('tap'); });
+
+/* ===================== SVG ART ===================== */
+function fishSvg(x, y, s, col, flip){
+  return '<g transform="translate(' + x + ',' + y + ') scale(' + (flip ? -s : s) + ',' + s + ')">' +
+    '<path d="M0 0 C12 -14 36 -14 46 0 C36 14 12 14 0 0Z" fill="' + col + '"/>' +
+    '<path d="M2 0 L-14 -11 L-10 0 L-14 11Z" fill="' + col + '"/>' +
+    '<path d="M20 -10 C22 -2 22 2 20 10" stroke="#fff" stroke-opacity=".6" stroke-width="3" fill="none"/>' +
+    '<circle cx="36" cy="-3" r="3" fill="#03203a"/></g>';
+}
+function turtleSvg(x, y, s){
+  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ') rotate(-12)">' +
+    '<ellipse cx="-34" cy="-22" rx="20" ry="8" fill="#6fbf73" transform="rotate(-30 -34 -22)"/>' +
+    '<ellipse cx="-34" cy="22" rx="20" ry="8" fill="#6fbf73" transform="rotate(30 -34 22)"/>' +
+    '<ellipse cx="20" cy="-26" rx="22" ry="8" fill="#6fbf73" transform="rotate(35 20 -26)"/>' +
+    '<ellipse cx="20" cy="26" rx="22" ry="8" fill="#6fbf73" transform="rotate(-35 20 26)"/>' +
+    '<circle cx="46" cy="0" r="12" fill="#7fcf83"/><circle cx="51" cy="-4" r="2.4" fill="#03203a"/>' +
+    '<ellipse cx="0" cy="0" rx="38" ry="28" fill="#2f7d4f" stroke="#1d5a37" stroke-width="3"/>' +
+    '<path d="M-14 -14 L0 -22 L14 -14 L14 4 L0 12 L-14 4Z" fill="#3f9a62" stroke="#1d5a37" stroke-width="2"/>' +
+    '<path d="M-14 -14 L-30 -6 M14 -14 L30 -6 M-14 4 L-28 14 M14 4 L28 14 M0 12 L0 26 M0 -22 L0 -27" stroke="#1d5a37" stroke-width="2"/></g>';
+}
+function coralSvg(x, y, s, col){
+  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')" stroke="' + col + '" stroke-linecap="round" fill="none">' +
+    '<path d="M0 0 V-40 M0 -24 L-16 -44 M-16 -44 V-58 M-16 -44 L-26 -52 M0 -40 L10 -60 M0 -32 L18 -44 M18 -44 L26 -56" stroke-width="7"/></g>';
+}
+function fanCoralSvg(x, y, s, col){
+  return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M0 0 C-40 -10 -44 -60 -20 -70 C-6 -80 6 -80 20 -70 C44 -60 40 -10 0 0Z" fill="' + col + '" opacity=".85"/>' +
+    '<path d="M0 0 L-20 -60 M0 0 L0 -72 M0 0 L20 -60 M0 0 L-32 -36 M0 0 L32 -36" stroke="#fff" stroke-opacity=".35" stroke-width="2"/></g>';
+}
+function stationSvg(){
+  return '<svg viewBox="0 0 420 300" role="img" aria-label="Reef Lab underwater station">' +
+    '<defs><linearGradient id="sw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a87a8"/><stop offset="1" stop-color="#05304d"/></linearGradient></defs>' +
+    '<rect width="420" height="300" rx="24" fill="url(#sw)"/>' +
+    '<path d="M0 250 C60 236 120 262 190 248 C260 234 330 262 420 244 V300 H0Z" fill="#d8b98a"/>' +
+    coralSvg(40, 262, 1, '#ff7058') + fanCoralSvg(370, 258, .8, '#ff9a76') + coralSvg(320, 266, .8, '#ffb35c') +
+    '<rect x="160" y="190" width="14" height="60" fill="#5d7482"/><rect x="250" y="190" width="14" height="60" fill="#5d7482"/>' +
+    '<rect x="110" y="110" width="200" height="90" rx="45" fill="#c9d8de" stroke="#4d6573" stroke-width="5"/>' +
+    '<circle cx="160" cy="155" r="16" fill="#45d3cb" stroke="#4d6573" stroke-width="4"/><circle cx="210" cy="155" r="16" fill="#45d3cb" stroke="#4d6573" stroke-width="4"/><circle cx="260" cy="155" r="16" fill="#45d3cb" stroke="#4d6573" stroke-width="4"/>' +
+    '<rect x="196" y="60" width="28" height="54" fill="#c9d8de" stroke="#4d6573" stroke-width="5"/>' +
+    '<path d="M110 150 L60 150 M310 150 L360 150" stroke="#4d6573" stroke-width="8"/>' +
+    '<circle cx="232" cy="122" r="9" fill="#ff4d4d"><animate attributeName="opacity" values="1;.2;1" dur="1.2s" repeatCount="indefinite"/></circle>' +
+    '<text x="210" y="190" text-anchor="middle" font-weight="900" font-size="16" fill="#03203a">REEF LAB</text>' +
+    fishSvg(60, 70, .9, '#ffd166') + fishSvg(96, 92, .6, '#ffd166') + fishSvg(370, 90, .8, '#ff7058', true) +
+    turtleSvg(330, 210, .7) + '</svg>';
+}
+function hatchIcon(i, open){
+  var col = open ? '#45d3cb' : '#ff7058';
+  return '<svg class="hbadge" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="' + col + '" stroke="#fff" stroke-width="3"/>' +
+    '<circle cx="32" cy="32" r="21" fill="#ffd2c8" stroke="#9b3a2b" stroke-width="3"/>' +
+    '<text x="32" y="33" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="900" fill="#24343e">' + (i < 7 ? i + 1 : '★') + '</text></svg>';
+}
+
+/* ===================== DRAG & DROP BOARD (pointer events + tap) ===================== */
+var lastDragEnd = 0;
+function Board(opt){
+  // opt: pool (element), slots: {slotId: element}, items: [{id,label}], placement: object slotId->itemId, onChange, tileClass
+  var placement = opt.placement, selected = null, self = this;
+  function where(id){ for (var s in placement) if (placement[s] === id) return s; return 'pool'; }
+  function move(id, target){
+    var from = where(id);
+    if (target === from) return;
+    if (target === 'pool'){ delete placement[from]; }
+    else {
+      var existing = placement[target];
+      placement[target] = id;
+      if (from !== 'pool'){ if (existing) placement[from] = existing; else delete placement[from]; }
+    }
+    selected = null;
+    render(); beep('tap');
+    opt.onChange && opt.onChange(placement);
+  }
+  function tileFor(item){
+    var t = el('button', {type:'button', class:'tile ' + (opt.tileClass || '') + (selected === item.id ? ' sel' : ''), 'data-item':item.id,
+      'aria-pressed': selected === item.id ? 'true' : 'false', text:item.label});
+    t.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if (now() - lastDragEnd < 400) return;
+      var loc = where(item.id);
+      if (selected && selected !== item.id && loc !== 'pool'){ move(selected, loc); return; }
+      selected = selected === item.id ? null : item.id;
+      render();
+    });
+    t.addEventListener('pointerdown', function(ev){ startDrag(ev, item, t); });
+    return t;
+  }
+  function render(){
+    opt.pool.innerHTML = '';
+    for (var s in opt.slots) opt.slots[s].innerHTML = '';
+    opt.items.forEach(function(item){
+      var loc = where(item.id);
+      (loc === 'pool' ? opt.pool : opt.slots[loc]).appendChild(tileFor(item));
+    });
+  }
+  function targetAt(x, y){
+    var list = document.elementsFromPoint ? document.elementsFromPoint(x, y) : [document.elementFromPoint(x, y)];
+    for (var k = 0; k < list.length; k++){
+      var e = list[k];
+      if (e && e.closest && e.closest('#topbar')) return null;
+      while (e && e !== document.body){
+        if (e === opt.pool) return 'pool';
+        for (var s in opt.slots) if (opt.slots[s] === e) return s;
+        e = e.parentNode;
+      }
+    }
+    return null;
+  }
+  function targetEl(t){ return t === 'pool' ? opt.pool : t ? opt.slots[t] : null; }
+  function startDrag(ev, item, t){
+    if (ev.button > 0) return;
+    lastDragEnd = 0;
+    var sx = ev.clientX, sy = ev.clientY, ghost = null, over = null, pid = ev.pointerId, ox = 0, oy = 0, py = sy, raf = 0;
+    function autoScroll(){
+      // scroll the page while a card is held near the top or bottom edge
+      var vh = window.innerHeight, sp = 0;
+      if (py > vh - 110) sp = Math.min(18, (py - (vh - 110)) / 4);
+      else if (py < 150) sp = -Math.min(18, (150 - py) / 4);
+      if (sp) window.scrollBy(0, sp);
+      raf = requestAnimationFrame(autoScroll);
+    }
+    try { t.setPointerCapture(pid); } catch (e) {}
+    function mv(e){
+      if (e.pointerId !== pid) return;
+      if (!ghost){
+        if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) < 10) return;
+        var r = t.getBoundingClientRect();
+        ox = sx - r.left; oy = sy - r.top;
+        ghost = t.cloneNode(true); ghost.classList.add('ghost');
+        ghost.style.width = r.width + 'px'; ghost.style.height = r.height + 'px';
+        document.body.appendChild(ghost); t.classList.add('src');
+        raf = requestAnimationFrame(autoScroll);
+      }
+      py = e.clientY;
+      e.preventDefault();
+      ghost.style.left = (e.clientX - ox) + 'px'; ghost.style.top = (e.clientY - oy) + 'px';
+      var tg = targetEl(targetAt(e.clientX, e.clientY));
+      if (tg !== over){ over && over.classList.remove('over'); over = tg; over && over.classList.add('over'); }
+    }
+    function up(e){
+      if (e.pointerId !== pid) return;
+      t.removeEventListener('pointermove', mv); t.removeEventListener('pointerup', up); t.removeEventListener('pointercancel', up);
+      over && over.classList.remove('over');
+      if (raf) cancelAnimationFrame(raf);
+      if (ghost){
+        ghost.remove(); t.classList.remove('src'); lastDragEnd = now();
+        var tgt = e.type === 'pointerup' ? targetAt(e.clientX, e.clientY) : null;
+        if (tgt) move(item.id, tgt);
+      }
+    }
+    t.addEventListener('pointermove', mv); t.addEventListener('pointerup', up); t.addEventListener('pointercancel', up);
+  }
+  function tapTarget(target){
+    if (!selected) return;
+    move(selected, target);
+  }
+  opt.pool.addEventListener('click', function(){ tapTarget('pool'); });
+  Object.keys(opt.slots).forEach(function(s){
+    var se = opt.slots[s];
+    se.setAttribute('role', 'button'); se.setAttribute('tabindex', '0');
+    se.addEventListener('click', function(){ tapTarget(s); });
+    se.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); tapTarget(s); } });
+  });
+  self.placement = placement;
+  self.render = render;
+  render();
+}
+
+/* ===================== HATCH BUILDERS ===================== */
+/* Each builder fills `box` and returns {check: function() -> Promise<{incomplete}|{correct,total,single}>} */
+var BUILD = [];
+
+/* TODO: materials/great-barrier-reef/vocab_text2.md was not available when this game was built.
+   The words in Hatch 1 and Hatch 7 come from the task prompt (prompts/great-barrier-reef.md) and the article facts;
+   please compare them with the Text 2 vocabulary list in the book. */
+BUILD[0] = function(box, d){
+  var items = [
+    ['something spectacular – the reef is one of the greatest <b>___s</b> on earth', 'w _ _ _ _ _', 6],
+    ['a community of animals and plants in the same environment', 'e _ _ _ _ _ _ _ _', 9],
+    ['a sea animal with a hard shell – some come to the reef from the Pacific Ocean', 't _ _ _ _ _', 6],
+    ['the place that you travel to', 'd _ _ _ _ _ _ _ _ _ _', 11],
+    ['to make water, air or land dirty', 'p _ _ _ _ _ _', 7],
+    ['the answer to a problem', 's _ _ _ _ _ _ _', 8]
+  ];
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'<b>Read</b> the definitions. <b>Type</b> the matching word from the article. The lines show the first letter and how many letters the word has.'}),
+    el('span', {class:'book', text:"Student's Book pp. 23–24"})
+  ]));
+  var list = el('div', {class:'card qlist'}), inputs = [];
+  items.forEach(function(it, n){
+    var inp = el('input', {type:'text', autocomplete:'off', autocapitalize:'off', autocorrect:'off', spellcheck:'false', 'aria-label':'Word ' + (n + 1), value: d['w' + n] || ''});
+    inp.addEventListener('input', function(){ d['w' + n] = inp.value; save(); });
+    inputs.push(inp);
+    list.appendChild(el('div', {class:'q'}, [
+      el('div', {class:'n', text:String(n + 1)}),
+      el('div', {html:it[0] + '<br><span class="pattern">' + it[1] + '</span> <span class="note">(' + it[2] + ' letters)</span>'}),
+      el('div', {class:'field'}, inp)
+    ]));
+  });
+  box.appendChild(list);
+  return {check: function(){
+    if (inputs.some(function(i){ return !norm(i.value); })) return Promise.resolve({incomplete:'Type all six words first.'});
+    return Promise.all(inputs.map(function(i, n){ return check('h1.' + (n + 1), i.value); })).then(countOk);
+  }};
+};
+
+BUILD[1] = function(box, d){
+  var qs = [
+    ['A', 'How many kilometres does the reef stretch?'],
+    ['B', 'How many types of coral does the text mention?'],
+    ['C', 'How many kilometres of coral were damaged in 2010?'],
+    ['D', 'How many million tourists visit the reef every year?']
+  ];
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'<b>Find</b> four numbers in the article. <b>Add</b> them up: <b>A + B + C + D</b>. Then <b>set</b> the wheels of the lock to the result.'}),
+    el('p', {class:'note', text:'Write numbers without commas. Use the notes fields for your numbers – they are not checked.'}),
+    el('span', {class:'book', text:"Student's Book p. 23"})
+  ]));
+  var notes = el('div', {class:'card'});
+  qs.forEach(function(q){
+    var inp = el('input', {type:'text', inputmode:'numeric', autocomplete:'off', 'aria-label':'Notes ' + q[0], value: d['n' + q[0]] || ''});
+    inp.addEventListener('input', function(){ d['n' + q[0]] = inp.value; save(); });
+    notes.appendChild(el('div', {class:'numq'}, [el('div', {class:'n', text:q[0]}), el('div', {text:q[1]}), inp]));
+  });
+  notes.appendChild(el('p', {class:'note', html:'<b>Code = A + B + C + D</b>'}));
+  box.appendChild(notes);
+  var digits = (d.code || '0000').split('').map(Number);
+  var lock = el('div', {class:'lock', role:'group', 'aria-label':'Number lock'});
+  digits.forEach(function(v, i){
+    var disp = el('div', {class:'d', 'aria-live':'polite', text:String(v)});
+    function set(nv){ digits[i] = (nv + 10) % 10; disp.textContent = digits[i]; d.code = digits.join(''); save(); beep('tap'); }
+    lock.appendChild(el('div', {class:'wheel'}, [
+      el('button', {type:'button', 'aria-label':'Wheel ' + (i + 1) + ' up', text:'▲', onclick:function(){ set(digits[i] + 1); }}),
+      disp,
+      el('button', {type:'button', 'aria-label':'Wheel ' + (i + 1) + ' down', text:'▼', onclick:function(){ set(digits[i] - 1); }})
+    ]));
+  });
+  box.appendChild(el('div', {style:'margin-top:14px'}, lock));
+  return {check: function(){
+    return check('h2', digits.join('')).then(function(ok){ return {correct: ok ? 1 : 0, total:1, single:'Wrong code.'}; });
+  }};
+};
+
+BUILD[2] = function(box, d){
+  var cards = [
+    {id:'pa', label:'Seabirds sit on the snorkelling platforms.'},
+    {id:'tz', label:'The creatures that need algae for food die.'},
+    {id:'kx', label:'Climate change gets worse.'},
+    {id:'wf', label:'Whole areas of the reef become like ghost towns.'},
+    {id:'ld', label:'A ship goes outside the official lane.'},
+    {id:'qr', label:'The algae on the coral die.'},
+    {id:'mb', label:'The water temperature gets higher.'}
+  ];
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'Climate change starts a chain reaction on the reef. <b>Put</b> five cards <b>in order</b> (1 = first). Two cards do not belong to the chain.'}),
+    el('p', {class:'note', text:'Drag a card into a box – or tap a card and then tap a box. Tap a placed card and then the card pile to take it back.'}),
+    el('span', {class:'book', text:"Student's Book p. 23"})
+  ]));
+  var c = el('div', {class:'card'}), pool = el('div', {class:'pool', 'aria-label':'Cards'}), chain = el('div', {class:'chain'}), slots = {};
+  for (var p = 1; p <= 5; p++){
+    var s = el('div', {class:'slot', 'data-ph':'Card ' + p + ' …', 'aria-label':'Box ' + p});
+    slots['p' + p] = s;
+    chain.appendChild(el('div', {class:'cslot'}, [el('div', {class:'n', text:String(p)}), s]));
+    if (p < 5) chain.appendChild(el('div', {class:'arrowdown', 'aria-hidden':'true', text:'▼'}));
+  }
+  c.appendChild(el('h3', {text:'Cards'})); c.appendChild(pool); c.appendChild(chain);
+  box.appendChild(c);
+  d.place = d.place || {};
+  new Board({pool:pool, slots:slots, items:cards, placement:d.place, onChange:save});
+  return {check: function(){
+    var keys = ['p1','p2','p3','p4','p5'];
+    if (keys.some(function(k){ return !d.place[k]; })) return Promise.resolve({incomplete:'Fill all five boxes first.'});
+    return Promise.all(keys.map(function(k, i){ return check('h3.' + (i + 1), d.place[k]); })).then(function(r){
+      var x = countOk(r); x.unit = 'cards in the right place'; return x;
+    });
+  }};
+};
+
+BUILD[3] = function(box, d){
+  var st = [
+    'You can see the reef from the moon.',
+    'The reef is smaller than the United Kingdom.',
+    'Coral bleaching was first seen in the 1980s.',
+    'Most of the tourists come from Europe.',
+    'Snorkelling platforms attract seabirds.',
+    'The oil spill in 2010 happened because the ship stayed inside the official lane.',
+    'Underwater robots help the coral to repair itself.',
+    'Australia can stop climate change on its own.',
+    'The government has closed the reef to tourists.'
+  ];
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'<b>Read</b> the statements. <b>Tap</b> True, False or Not in the text.'}),
+    el('div', {class:'explain'}, [
+      el('div', {html:'<b>True</b> = the text says this.'}),
+      el('div', {html:'<b>False</b> = the text says something different.'}),
+      el('div', {html:'<b>Not in the text</b> = the text gives no information.'})
+    ]),
+    el('span', {class:'book', text:"Student's Book pp. 23–24"})
+  ]));
+  var list = el('div', {class:'card tf'});
+  d.a = d.a || {};
+  st.forEach(function(s, n){
+    var btns = el('div', {class:'tfbtns', role:'group', 'aria-label':'Statement ' + (n + 1)});
+    [['t','True'],['f','False'],['nt','Not in the text']].forEach(function(o){
+      var b = el('button', {type:'button', 'aria-pressed': d.a[n] === o[0] ? 'true' : 'false', text:o[1]});
+      b.addEventListener('click', function(){
+        d.a[n] = o[0]; save(); beep('tap');
+        Array.prototype.forEach.call(btns.children, function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      });
+      btns.appendChild(b);
+    });
+    list.appendChild(el('div', {class:'tfrow'}, [el('div', {class:'n', text:String(n + 1)}), el('div', {text:s}), btns]));
+  });
+  box.appendChild(list);
+  return {check: function(){
+    for (var n = 0; n < 9; n++) if (!d.a[n]) return Promise.resolve({incomplete:'Choose an answer for all nine statements first.'});
+    return Promise.all(st.map(function(s, n){ return check('h4.' + (n + 1), d.a[n]); })).then(countOk);
+  }};
+};
+
+BUILD[4] = function(box, d){
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'This is an <b>imagined logbook</b> – it is not in your book. A captain wrote it in 2010. <b>Type</b> the correct verb forms: <i>simple past</i>, <i>past progressive</i> or <i>used to</i>.'}),
+    el('span', {class:'book', text:"Student's Book p. 23 (for the story)"})
+  ]));
+  var inputs = [];
+  function gap(n){
+    var inp = el('input', {type:'text', autocomplete:'off', autocapitalize:'off', autocorrect:'off', spellcheck:'false', 'aria-label':'Gap ' + n, value: d['g' + n] || ''});
+    inp.addEventListener('input', function(){ d['g' + n] = inp.value; save(); });
+    inputs[n - 1] = inp;
+    return inp;
+  }
+  function verb(t){ return el('span', {class:'verb', text:' (' + t + ') '}); }
+  var log = el('div', {class:'log'}, [
+    el('div', {class:'row', style:'justify-content:space-between'}, [el('b', {text:"Captain's logbook – 2010"}), el('span', {class:'stamp', text:'Imagined logbook'})]),
+    el('p', null, ['1. We ', gap(1), verb('travel'), 'through the reef when the ship ', gap(2), verb('go'), 'outside the official lane.']),
+    el('p', null, ['2. While I ', gap(3), verb('look'), 'at the map, the ship ', gap(4), verb('hit'), 'the reef.']),
+    el('p', {style:'margin-bottom:0'}, ['Later, a scientist told me two things:']),
+    el('p', null, ['3. 100 years ago, the coral ', gap(5), verb('be – use used to'), 'much more colourful.']),
+    el('p', null, ['4. Before the 1980s, nobody ', gap(6), verb('see'), 'coral bleaching.'])
+  ]);
+  box.appendChild(log);
+  return {check: function(){
+    if (inputs.some(function(i){ return !norm(i.value); })) return Promise.resolve({incomplete:'Fill in all six gaps first.'});
+    return Promise.all(inputs.map(function(i, n){ return check('h5.' + (n + 1), i.value); })).then(countOk);
+  }};
+};
+
+BUILD[5] = function(box, d){
+  var cons = [
+    {id:'jw', label:'Whales leave the reef.'},
+    {id:'ho', label:'An oil spill damaged three kilometres of coral.'},
+    {id:'ng', label:'Coral bleaching'},
+    {id:'vs', label:"Seabirds' waste pollutes the water."}
+  ];
+  var threats = [['a1','Climate change and higher water temperature'],['a2','Snorkelling platforms'],['a3','Ships']];
+  var ticks = [
+    ['b1','It has closed the reef to tourists.'],
+    ['b3','It has spent millions of Australian dollars on help for the reef.'],
+    ['b9','It has banned all ships from the area.'],
+    ['b7','It has made stricter laws for ships.'],
+    ['b5','It has built a wall around the reef.']
+  ];
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'<b>Part A:</b> <b>Match</b> each threat to its consequence. One consequence is extra.'}),
+    el('p', {html:'<b>Part B:</b> What has the Australian government done? <b>Tick two.</b>'}),
+    el('p', {class:'note', text:'Part A and Part B are checked together.'}),
+    el('span', {class:'book', text:"Student's Book pp. 23–24"})
+  ]));
+  var a = el('div', {class:'card'}), pool = el('div', {class:'pool', 'aria-label':'Consequences'}), match = el('div', {class:'match'}), slots = {};
+  threats.forEach(function(t){
+    var s = el('div', {class:'slot', 'data-ph':'Consequence …', 'aria-label':'Consequence of ' + t[1]});
+    slots[t[0]] = s;
+    match.appendChild(el('div', {class:'mrow'}, [el('div', {class:'threat', text:t[1] + ' →'}), s]));
+  });
+  a.appendChild(el('h3', {text:'Part A – Threats and consequences'}));
+  a.appendChild(match); a.appendChild(pool);
+  box.appendChild(a);
+  d.place = d.place || {};
+  new Board({pool:pool, slots:slots, items:cons, placement:d.place, onChange:save});
+  d.t = d.t || {};
+  var b = el('div', {class:'card', style:'margin-top:14px'}, el('h3', {text:'Part B – What has the government done? Tick two.'}));
+  var tl = el('div', {class:'ticks'});
+  ticks.forEach(function(t){
+    var btn = el('button', {type:'button', class:'tick', 'aria-pressed': d.t[t[0]] ? 'true' : 'false'}, [el('span', {class:'box', text:'✓'}), el('span', {text:t[1]})]);
+    btn.addEventListener('click', function(){
+      d.t[t[0]] = !d.t[t[0]]; if (!d.t[t[0]]) delete d.t[t[0]];
+      btn.setAttribute('aria-pressed', d.t[t[0]] ? 'true' : 'false'); save(); beep('tap');
+    });
+    tl.appendChild(btn);
+  });
+  b.appendChild(tl); box.appendChild(b);
+  return {check: function(){
+    if (threats.some(function(t){ return !d.place[t[0]]; })) return Promise.resolve({incomplete:'Part A: match all three threats first.'});
+    var ticked = Object.keys(d.t).filter(function(k){ return d.t[k]; });
+    if (ticked.length !== 2) return Promise.resolve({incomplete:'Part B: tick exactly two sentences.'});
+    var ps = threats.map(function(t){ return check('h6.' + t[0], d.place[t[0]]); })
+      .concat(ticked.map(function(k){ return check('h6.b', k); }));
+    return Promise.all(ps).then(countOk);
+  }};
+};
+
+BUILD[6] = function(box, d){
+  var words = ['solution','bleaching','platform','threats','government','stretches','destination','pollutes','consequence']
+    .map(function(w){ return {id:w, label:w}; });
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'The storm damaged this report. <b>Tap</b> a word, then <b>tap</b> a gap (or drag the word). You can use each word only once. Two words are extra.'}),
+    el('span', {class:'book', text:"Student's Book pp. 23–24"})
+  ]));
+  var slots = {};
+  function g(n){ var s = el('span', {class:'slot gap', 'data-ph':'(' + n + ')', 'aria-label':'Gap ' + n}); slots['g' + n] = s; return s; }
+  var rep = el('div', {class:'report'}, [
+    el('h3', {text:'REEF LAB – Report on the Great Barrier Reef'}),
+    el('ol', null, [
+      el('li', null, ['The Great Barrier Reef ', g(1), ' for 2,300 kilometres.']),
+      el('li', null, ['Climate change is one of the biggest ', g(2), ' to the reef.']),
+      el('li', null, ['Warm water causes coral ', g(3), '.']),
+      el('li', null, ['The waste of seabirds ', g(4), ' the water.']),
+      el('li', null, ['The death of many creatures is a ', g(5), ' of coral bleaching.']),
+      el('li', null, ['The ', g(6), ' has made stricter laws for ships.']),
+      el('li', null, ['If no ', g(7), ' is found, the reef may be dead by 2030.'])
+    ])
+  ]);
+  var pool = el('div', {class:'pool wordbank', 'aria-label':'Word bank'});
+  box.appendChild(rep);
+  box.appendChild(el('div', {class:'card', style:'margin-top:14px'}, [el('h3', {text:'Word bank'}), pool]));
+  d.place = d.place || {};
+  new Board({pool:pool, slots:slots, items:words, placement:d.place, onChange:save});
+  return {check: function(){
+    var keys = []; for (var n = 1; n <= 7; n++) keys.push('g' + n);
+    if (keys.some(function(k){ return !d.place[k]; })) return Promise.resolve({incomplete:'Fill all seven gaps first.'});
+    return Promise.all(keys.map(function(k, i){ return check('h7.' + (i + 1), d.place[k]); })).then(countOk);
+  }};
+};
+
+BUILD[7] = function(box, d){
+  var items = LETTERS.map(function(l, i){ return {id:'L' + i, label:l}; });
+  box.appendChild(el('div', {class:'card task'}, [
+    el('p', {html:'You have all seven letters! <b>Put</b> them <b>in order</b> to make the codeword for the last hatch.'}),
+    el('p', {html:'<b>What does the reef need many years to do after the oil spill?</b>'}),
+    el('span', {class:'book', text:"Student's Book p. 23, l. 52"})
+  ]));
+  var c = el('div', {class:'card'}), pool = el('div', {class:'pool letters', 'aria-label':'Letters'}), row = el('div', {class:'lslots'}), slots = {};
+  for (var i = 0; i < 7; i++){ var s = el('div', {class:'slot', 'aria-label':'Position ' + (i + 1)}); slots['s' + i] = s; row.appendChild(s); }
+  c.appendChild(row); c.appendChild(pool);
+  box.appendChild(c);
+  d.place = d.place || {};
+  new Board({pool:pool, slots:slots, items:items, placement:d.place, onChange:save});
+  return {check: function(){
+    var word = '';
+    for (var i = 0; i < 7; i++){ var id = d.place['s' + i]; if (!id) return Promise.resolve({incomplete:'Put all seven letters into the boxes first.'}); word += LETTERS[+id.slice(1)]; }
+    return check('final', word).then(function(ok){ return {correct: ok ? 1 : 0, total:1, single:'Wrong codeword.'}; });
+  }};
+};
+
+function countOk(arr){ return {correct: arr.filter(Boolean).length, total: arr.length}; }
+
+/* ===================== VIEWS ===================== */
+var app = $('#app'), current = null, busy = false;
+
+function showTop(on){ $('#topbar').classList.toggle('hidden', !on); }
+
+function renderTop(){
+  $('#teamLbl').textContent = S.team;
+  var hl = hintsLeft(), h = '';
+  for (var i = 0; i < MAXHINTS; i++) h += '<svg width="22" height="26" viewBox="0 0 22 26" aria-hidden="true"><path d="M11 1a8 8 0 0 0-5 14c1 1 1.5 2 1.5 3.5h7c0-1.5.5-2.5 1.5-3.5A8 8 0 0 0 11 1z" fill="' + (i < hl ? '#ffd166' : 'rgba(255,255,255,.2)') + '"/><rect x="7.5" y="20" width="7" height="4" rx="1.5" fill="' + (i < hl ? '#ffd166' : 'rgba(255,255,255,.2)') + '"/></svg>';
+  $('#hintsLeft').innerHTML = h + '<span class="sr" style="position:absolute;left:-9999px">' + hl + ' hints left</span>';
+  var inv = $('#inv'); inv.innerHTML = '';
+  for (var j = 0; j < 7; j++){
+    var got = j < Math.min(S.progress, 7);
+    inv.appendChild(el('div', {class:'slot' + (got ? ' got' : ''), id:'inv' + j, text: got ? LETTERS[j] : ''}));
+  }
+}
+
+function tick(){
+  if (!S.started) return;
+  var r = remaining(), o2 = $('#o2');
+  var ot = r <= 0;
+  $('#o2time').textContent = ot ? '+' + fmt(-r) : fmt(r);
+  $('#o2fill').style.width = ot ? '0%' : (100 * r / TOTAL) + '%';
+  o2.classList.toggle('low', !ot && r < 600 && r >= 180);
+  o2.classList.toggle('crit', !ot && r < 180);
+  o2.classList.toggle('ot', ot);
+  if (ot && !S.otNotified && !S.finished){
+    S.otNotified = true; save();
+    modal('Emergency oxygen activated', '<p><b>Emergency oxygen activated – you\'re in overtime!</b></p><p>Don\'t give up. Keep going – the timer now counts the extra time in red.</p>', [['Keep going', null]]);
+  }
+  var cool = $('#cool');
+  if (cool){
+    var l = lockLeft();
+    cool.classList.toggle('hidden', l <= 0);
+    if (l > 0){ $('#coolTxt').textContent = 'System cooling down … ' + Math.ceil(l) + ' s'; $('#coolFill').style.width = (100 * l / LOCKS) + '%'; }
+    var cb = $('#checkBtn'); if (cb) cb.disabled = l > 0 || busy;
+  }
+}
+
+function renderStart(){
+  showTop(false); current = null;
+  app.innerHTML = '';
+  var name = el('input', {type:'text', id:'teamName', maxlength:'30', autocomplete:'off', placeholder:'e.g. The Coral Crew', 'aria-label':'Team name', value:S.team || ''});
+  var go = el('button', {type:'button', class:'btn', id:'startBtn', text:'Start the mission'});
+  var msg = el('div', {class:'feedback info'});
+  go.addEventListener('click', function(){
+    var t = name.value.trim().replace(/\s+/g, ' ');
+    if (!t){ msg.textContent = 'Please type a team name first.'; name.focus(); return; }
+    S.team = t.slice(0, 30); S.started = true; S.startTime = now(); S.view = 'map'; save();
+    beep('ok'); renderMap();
+  });
+  name.addEventListener('keydown', function(e){ if (e.key === 'Enter') go.click(); });
+  app.appendChild(el('div', {class:'wrap start'}, [
+    el('div', {class:'hero'}, [
+      el('div', null, [
+        el('div', {class:'kicker', text:'Unit 1 · Text 2 · Escape game'}),
+        el('h1', {text:'REEF LAB – Escape from the Great Barrier Reef'}),
+        el('p', {text:'You are a team of young marine scientists in Reef Lab, a research station under the sea at the Great Barrier Reef. Last night a storm damaged the station. Your oxygen will only last 40 more minutes!'}),
+        el('p', {text:'Seven hatches are between you and the rescue boat at the surface. Each hatch computer only opens if you prove that you understand the reef. Every open hatch gives you a letter. Together, the letters make the codeword for the last hatch.'})
+      ]),
+      el('div', {html:stationSvg()})
+    ]),
+    el('div', {class:'bookbox'}, [
+      el('span', {html:'<svg width="40" height="34" viewBox="0 0 40 34" aria-hidden="true"><path d="M2 4c6-3 12-3 18 1v27c-6-4-12-4-18-1z" fill="#0e8a96"/><path d="M38 4c-6-3-12-3-18 1v27c6-4 12-4 18-1z" fill="#45d3cb"/></svg>'}),
+      el('span', {text:"Open your Student's Book at pages 23–24. You will need it!"})
+    ]),
+    el('div', {class:'glass'}, [
+      el('h3', {text:'How to play'}),
+      el('ul', null, [
+        el('li', {text:'Open the hatches one after the other. Read, talk in your team, then tap "Check".'}),
+        el('li', {html:'Wrong answer: <b>−30 seconds</b> of oxygen, and the system cools down for <b>15 seconds</b>.'}),
+        el('li', {html:'You have <b>3 hints</b> for the whole game. Each hint costs <b>60 seconds</b>.'}),
+        el('li', {text:'When a task has many parts, you only see how many are correct – not which ones.'}),
+        el('li', {text:'Collect 7 letters. They make the codeword for the final hatch.'})
+      ])
+    ]),
+    el('div', {class:'glass', style:'margin-top:14px'}, [
+      el('label', {for:'teamName'}, el('h3', {text:'Your team name'})),
+      el('p', {class:'note', text:'Choose a fun team name. Please do not use your real names.'}),
+      name, msg,
+      el('div', {class:'row', style:'margin-top:8px'}, go)
+    ])
+  ]));
+}
+
+function mapSvg(){
+  var P = [[120,505],[320,520],[525,500],[690,400],[505,335],[300,325],[115,240],[330,140]];
+  var tube = 'M' + P.map(function(p){ return p.join(' '); }).join(' L');
+  var s = '<svg id="mapSvg" viewBox="0 0 800 600" role="group" aria-label="Map of Reef Lab">' +
+    '<defs><linearGradient id="mw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2aa6c4"/><stop offset=".25" stop-color="#11709a"/><stop offset="1" stop-color="#05304d"/></linearGradient></defs>' +
+    '<rect width="800" height="600" fill="url(#mw)"/>' +
+    '<rect width="800" height="58" fill="#bfe9f5"/><path d="M0 58 Q25 48 50 58 T100 58 T150 58 T200 58 T250 58 T300 58 T350 58 T400 58 T450 58 T500 58 T550 58 T600 58 T650 58 T700 58 T750 58 T800 58 V64 H0Z" fill="#2aa6c4"/>' +
+    '<g transform="translate(560 44)"><path d="M-70 0 H70 L52 22 H-52Z" fill="#ff7058" stroke="#fff" stroke-width="3"/><rect x="-26" y="-26" width="52" height="26" rx="5" fill="#fff"/><rect x="-18" y="-20" width="14" height="12" fill="#45d3cb"/><rect x="4" y="-20" width="14" height="12" fill="#45d3cb"/>' +
+    '<circle cx="-48" cy="8" r="7" fill="none" stroke="#fff" stroke-width="3"/><text x="0" y="16" text-anchor="middle" font-size="12" font-weight="900" fill="#fff">RESCUE</text></g>' +
+    '<path d="M330 140 C 380 90 470 90 520 66" stroke="#d9ecf2" stroke-width="5" stroke-dasharray="10 9" fill="none"/>' +
+    '<path d="M0 560 C80 540 160 575 260 556 C360 538 460 578 560 556 C660 536 730 566 800 552 V600 H0Z" fill="#c9a874"/>' +
+    coralSvg(40, 575, 1.1, '#ff7058') + fanCoralSvg(220, 580, .7, '#ff9a76') + coralSvg(420, 585, .9, '#ffb35c') + fanCoralSvg(620, 580, .8, '#e85d75') + coralSvg(760, 575, 1, '#ff7058') +
+    fishSvg(640, 170, .8, '#ffd166') + fishSvg(680, 195, .55, '#ffd166') + fishSvg(200, 420, .7, '#ff9a76', true) + fishSvg(430, 230, .6, '#45d3cb', true) +
+    turtleSvg(660, 280, .75) +
+    '<path d="' + tube + '" stroke="#2c3e4a" stroke-width="26" fill="none" stroke-linejoin="round"/>' +
+    '<path d="' + tube + '" stroke="#9fb4bf" stroke-width="16" fill="none" stroke-linejoin="round"/>';
+  P.forEach(function(p, i){
+    var st = i < S.progress ? 'solved' : i === S.progress ? 'current' : 'locked';
+    var label = i < 7 ? HATCHES[i].name : 'Final Hatch';
+    var inner = i < S.progress ? (i < 7 ? LETTERS[i] : '✓') : st === 'locked' ? '' : (i < 7 ? String(i + 1) : '★');
+    var lockIcon = st === 'locked' ? '<g fill="#24343e"><rect x="-11" y="-4" width="22" height="17" rx="3"/><path d="M-7 -4 V-9 A7 7 0 0 1 7 -9 V-4" stroke="#24343e" stroke-width="4" fill="none"/></g>' : '';
+    s += '<g class="node ' + st + '" data-i="' + i + '" transform="translate(' + p[0] + ' ' + p[1] + ')" ' +
+      (st === 'locked' ? 'aria-disabled="true" ' : 'tabindex="0" ') + 'role="button" aria-label="' + esc(label + (st === 'solved' ? ' – open' : st === 'locked' ? ' – locked' : ' – next')) + '">' +
+      (st === 'current' ? '<circle class="glow" r="52" fill="#ff7058"/>' : '') +
+      '<circle class="ring" r="42"/><circle class="door" r="30"/>' +
+      (st === 'solved' ? '' : '<path d="M-30 0 H30 M0 -30 V30" stroke="#3a4f5c" stroke-width="3" opacity=".5"/>') +
+      '<text class="num" y="1">' + inner + '</text>' + lockIcon +
+      '<text class="lbl" y="-54">' + esc(label) + '</text></g>';
+  });
+  return s + '</svg>';
+}
+
+function renderMap(){
+  if (S.finished){ renderEnd(); return; }
+  S.view = 'map'; save(); current = null;
+  showTop(true); renderTop(); tick();
+  app.innerHTML = '';
+  var next = S.progress;
+  var w = el('div', {class:'wrap'}, [
+    el('div', {class:'maphead'}, [
+      el('div', null, [el('h2', {text:'Station map'}), el('p', {style:'margin:0', text: next < 7 ? 'Next: Hatch ' + (next + 1) + ' – ' + HATCHES[next].name + '. Tap the glowing hatch.' : 'You have all seven letters. Tap the final hatch!'})]),
+      el('button', {type:'button', class:'btn', text: next < 7 ? 'Go to Hatch ' + (next + 1) : 'Go to the final hatch', onclick:function(){ openHatch(next); }})
+    ]),
+    el('div', {style:'margin-top:12px', html:mapSvg()})
+  ]);
+  app.appendChild(w);
+  window.scrollTo(0, 0);
+  Array.prototype.forEach.call(app.querySelectorAll('.node'), function(n){
+    var i = +n.getAttribute('data-i');
+    if (i > S.progress) return;
+    function go(){ if (i === S.progress) openHatch(i); else info(i); }
+    n.addEventListener('click', go);
+    n.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } });
+  });
+}
+function info(i){
+  modal('Hatch ' + (i + 1) + ' – ' + HATCHES[i].name, '<p>This hatch is already open. You found the letter <b style="font-size:26px">' + LETTERS[i] + '</b>.</p>', [['OK', null]]);
+}
+
+function openHatch(i){
+  if (i > S.progress) return;
+  if (i >= 8){ renderEnd(); return; }
+  S.view = i; save();
+  showTop(true); renderTop();
+  app.innerHTML = '';
+  var h = HATCHES[i];
+  var w = el('div', {class:'wrap'});
+  w.appendChild(el('div', {class:'hhead'}, [
+    el('span', {html:hatchIcon(i)}),
+    el('div', null, [el('div', {class:'sub', text:(i < 7 ? 'Hatch ' + (i + 1) + ' of 7 · ' : '') + h.skill}), el('h2', {text: i < 7 ? 'Hatch ' + (i + 1) + ' – ' + h.name : 'Final Hatch – Codeword'})])
+  ]));
+  var box = el('div');
+  w.appendChild(box);
+  current = {i:i, api:BUILD[i](box, draft(i))};
+  var hintArea = el('div', {id:'hintArea'});
+  w.appendChild(hintArea);
+  var fb = el('div', {class:'feedback', id:'feedback', 'aria-live':'polite'});
+  var checkBtn = el('button', {type:'button', class:'btn', id:'checkBtn', text: i < 7 ? 'Check' : 'Open the hatch', onclick:doCheck});
+  var hintBtn = el('button', {type:'button', class:'btn sec', id:'hintBtn', onclick:askHint});
+  var backBtn = el('button', {type:'button', class:'btn sec', text:'← Map', onclick:renderMap});
+  w.appendChild(el('div', {class:'actions'}, [
+    fb,
+    el('div', {class:'cool hidden', id:'cool'}, [el('span', {id:'coolTxt'}), el('div', {class:'coolbar'}, el('div', {id:'coolFill'}))]),
+    el('div', {class:'row'}, [backBtn, el('div', {class:'row'}, [hintBtn, checkBtn])])
+  ]));
+  app.appendChild(w);
+  renderHint();
+  tick();
+  window.scrollTo(0, 0);
+}
+
+function renderHint(){
+  if (!current) return;
+  var i = current.i, used = S.hints.indexOf(i) >= 0, b = $('#hintBtn'), a = $('#hintArea');
+  a.innerHTML = used ? '<div class="hintbox"><b>Hint:</b> ' + esc(HATCHES[i].hint) + '</div>' : '';
+  if (used){ b.textContent = 'Hint used'; b.disabled = true; }
+  else if (hintsLeft() <= 0){ b.textContent = 'No hints left'; b.disabled = true; }
+  else { b.textContent = 'Hint (−60 s)'; b.disabled = false; }
+}
+function askHint(){
+  if (!current || S.hints.indexOf(current.i) >= 0 || hintsLeft() <= 0) return;
+  var left = hintsLeft();
+  modal('Use a hint?', '<p>A hint costs <b>60 seconds</b> of oxygen.</p><p>You have <b>' + left + ' of 3</b> hints left for the whole game.</p>', [
+    ['Cancel', null, 'sec'],
+    ['Use a hint', function(){
+      if (!current || S.hints.indexOf(current.i) >= 0 || hintsLeft() <= 0) return;
+      S.hints.push(current.i); S.penalty += HINTCOST; save();
+      showPenalty('−60 s'); renderTop(); renderHint(); tick();
+    }]
+  ]);
+}
+
+function feedback(msg, kind){ var f = $('#feedback'); if (f){ f.className = 'feedback ' + (kind || ''); f.textContent = msg; } }
+
+function doCheck(){
+  if (!current || busy || lockLeft() > 0) return;
+  busy = true; tick();
+  var i = current.i;
+  current.api.check().then(function(r){
+    busy = false;
+    if (!current || current.i !== i) return;
+    if (r.incomplete){ feedback(r.incomplete, 'info'); tick(); return; }
+    if (r.correct === r.total){ solve(i); return; }
+    S.penalty += PEN; S.lockUntil = now() + LOCKS * 1000; save();
+    beep('bad'); showPenalty('−30 s');
+    var m = r.single ? r.single : r.correct + ' of ' + r.total + ' ' + (r.unit || 'correct') + '.';
+    feedback(m + ' −30 s oxygen. Read the text again!', 'bad');
+    tick();
+  }).catch(function(){ busy = false; feedback('Something went wrong. Please try again.', 'info'); tick(); });
+}
+
+function showPenalty(t){
+  var tm = $('#o2time'); if (!tm) return;
+  var r = tm.getBoundingClientRect();
+  var p = el('div', {class:'penalty', text:t});
+  p.style.left = (r.left) + 'px'; p.style.top = (r.bottom + 4) + 'px';
+  document.body.appendChild(p);
+  if (p.animate){
+    p.animate([{opacity:1, transform:'translateY(0)'}, {opacity:0, transform:'translateY(30px)'}], {duration:1400, easing:'ease-out'}).onfinish = function(){ p.remove(); };
+  } else setTimeout(function(){ p.remove(); }, 1400);
+}
+
+function solve(i, skipped){
+  S.progress = Math.max(S.progress, i + 1);
+  S.lockUntil = 0;
+  delete S.drafts['h' + i];
+  if (i === 7){ S.finished = true; S.finishRemaining = TOTAL - (now() - S.startTime) / 1000 - S.penalty; }
+  save();
+  current = null;
+  beep('ok');
+  playOpen(i, function(){ if (i === 7) renderEnd(); else renderMap(); }, skipped);
+}
+
+function playOpen(i, done, fast){
+  var ov = el('div', {id:'openAnim', 'aria-live':'assertive'});
+  ov.innerHTML = '<svg viewBox="-110 -110 220 220" aria-hidden="true">' +
+    '<circle r="104" fill="#03203a" stroke="#45d3cb" stroke-width="8"/>' +
+    '<circle r="70" fill="#011422"/>' +
+    '<g id="doorG"><circle r="92" fill="#8aa0ac" stroke="#3a4f5c" stroke-width="6"/>' +
+    '<g id="wheelG" stroke="#24343e" stroke-width="8" stroke-linecap="round" fill="none"><circle r="38"/><path d="M-38 0 H38 M0 -38 V38 M-27 -27 L27 27 M27 -27 L-27 27"/></g>' +
+    '<circle r="10" fill="#24343e"/></g></svg>';
+  var msg = el('div', {class:'openmsg', text: i < 7 ? 'Hatch ' + (i + 1) + ' is open! You found a letter.' : 'The last hatch is open!'});
+  document.body.appendChild(ov); document.body.appendChild(msg);
+  var reduce = fast || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var door = ov.querySelector('#doorG'), wheel = ov.querySelector('#wheelG');
+  function finish(){ ov.remove(); msg.remove(); done(); }
+  if (reduce || !door.animate){ setTimeout(function(){ if (i < 7) flyLetter(i, finish, true); else finish(); }, fast ? 50 : 900); return; }
+  wheel.animate([{transform:'rotate(0deg)'}, {transform:'rotate(270deg)'}], {duration:900, easing:'ease-in-out', fill:'forwards'});
+  door.animate([{transform:'scale(1)', opacity:1}, {transform:'scale(1)', opacity:1, offset:.55}, {transform:'scale(.05) rotate(90deg)', opacity:0}], {duration:1500, easing:'ease-in', fill:'forwards'})
+    .onfinish = function(){ if (i < 7) flyLetter(i, finish); else setTimeout(finish, 600); };
+}
+
+function flyLetter(i, done, instant){
+  renderTop();
+  var target = $('#inv' + i);
+  if (target) target.style.visibility = 'hidden';
+  var f = el('div', {class:'flyletter', text:LETTERS[i]});
+  document.body.appendChild(f);
+  var vw = window.innerWidth, vh = window.innerHeight;
+  f.style.left = (vw / 2 - 55) + 'px'; f.style.top = (vh / 2 - 65) + 'px';
+  function end(){ f.remove(); if (target) target.style.visibility = ''; done(); }
+  if (instant || !f.animate || !target){ setTimeout(end, instant ? 300 : 0); return; }
+  var r = target.getBoundingClientRect();
+  var dx = r.left + r.width / 2 - vw / 2, dy = r.top + r.height / 2 - vh / 2, sc = r.width / 110;
+  f.animate([
+    {transform:'translate(0,0) scale(.2)', opacity:0},
+    {transform:'translate(0,0) scale(1.1)', opacity:1, offset:.25},
+    {transform:'translate(0,0) scale(1)', opacity:1, offset:.5},
+    {transform:'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ')', opacity:1}
+  ], {duration:1800, easing:'ease-in-out', fill:'forwards'}).onfinish = end;
+}
+
+function renderEnd(){
+  showTop(true); renderTop(); tick();
+  S.view = 'end'; save(); current = null;
+  app.innerHTML = '';
+  var r = S.finishRemaining != null ? S.finishRemaining : remaining();
+  var ot = r < 0;
+  var d = new Date();
+  var dateStr = d.getDate() + ' ' + ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getMonth()] + ' ' + d.getFullYear();
+  var ta = el('textarea', {rows:'4', 'aria-label':'Your answer', placeholder:'Write two sentences in English …'});
+  ta.value = S.reflection || '';
+  ta.addEventListener('input', function(){ S.reflection = ta.value; save(); });
+  app.appendChild(el('div', {class:'wrap', style:'padding-top:18px'}, [
+    el('div', {class:'cert'}, [
+      el('div', {html:'<svg viewBox="0 0 600 90" width="100%" height="80" aria-hidden="true">' + coralSvg(40, 88, .9, '#ff7058') + fanCoralSvg(110, 90, .55, '#ff9a76') + fishSvg(210, 40, .7, '#ffd166') + turtleSvg(300, 45, .55) + fishSvg(390, 52, .6, '#45d3cb', true) + fanCoralSvg(490, 90, .55, '#e85d75') + coralSvg(560, 88, .9, '#ffb35c') + '</svg>'}),
+      el('div', {class:'kicker', style:'color:#0e8a96', text:'Certificate'}),
+      el('h2', {text:'Reef Rescuers'}),
+      el('p', {style:'margin:.2em 0', text:'This certifies that the team'}),
+      el('div', {class:'team', text:S.team}),
+      el('p', {style:'margin:.4em 0', text:'opened all seven hatches, escaped from Reef Lab and proved that they understand the Great Barrier Reef.'}),
+      el('div', {class:'stats'}, [
+        el('div', {class:'stat'}, ot ? [el('span', {text:'Overtime'}), el('b', {class:'ot', text:'+' + fmt(-r)})] : [el('span', {text:'Oxygen left'}), el('b', {text:fmt(r)})]),
+        el('div', {class:'stat'}, [el('span', {text:'Hints used'}), el('b', {text:S.hints.length + ' of 3'})])
+      ]),
+      el('p', {class:'note', text:'Reef Lab · ' + dateStr})
+    ]),
+    el('p', {class:'note', style:'color:#cfe6ee;text-align:center', text:'Take a screenshot of your certificate!'}),
+    el('div', {class:'glass', style:'margin-top:14px'}, [
+      el('h3', {text:'Think about it'}),
+      el('p', {html:'<i>"Do we care enough about our earth to protect one of its most beautiful places?"</i> Write two sentences.'}),
+      ta,
+      el('p', {class:'note', text:'This is not marked. Your answer stays on this iPad.'})
+    ])
+  ]));
+  window.scrollTo(0, 0);
+}
+
+/* ===================== MODAL ===================== */
+function modal(title, html, buttons){
+  var ov = el('div', {class:'overlay', role:'dialog', 'aria-modal':'true', 'aria-label':title});
+  var row = el('div', {class:'row'});
+  buttons.forEach(function(b){
+    row.appendChild(el('button', {type:'button', class:'btn ' + (b[2] || ''), text:b[0], onclick:function(){ ov.remove(); b[1] && b[1](); }}));
+  });
+  ov.appendChild(el('div', {class:'card modal'}, [el('h3', {text:title}), el('div', {html:html}), row]));
+  document.body.appendChild(ov);
+  var last = row.lastChild; last && last.focus();
+  return ov;
+}
+
+/* ===================== TEACHER MODE ===================== */
+var teacherOk = false;
+function setupTeacher(){
+  var q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  if (!q.has('teacher')) return;
+  var b = el('button', {type:'button', id:'teacherBtn', text:'Teacher'});
+  b.addEventListener('click', function(){ teacherOk ? teacherPanel() : askPin(); });
+  document.body.appendChild(b);
+}
+function askPin(){
+  var ov = modal('Teacher mode', '<p>Enter the PIN.</p><input type="text" id="pinIn" inputmode="numeric" autocomplete="off" aria-label="PIN"><div class="feedback bad" id="pinMsg"></div>', [
+    ['Cancel', null, 'sec']
+  ]);
+  var ok = el('button', {type:'button', class:'btn', text:'OK'});
+  ov.querySelector('.row').appendChild(ok);
+  var inp = ov.querySelector('#pinIn'); inp.focus();
+  function go(){
+    sha256('reeflab|pin|' + norm(inp.value)).then(function(h){
+      if ((H.pin || []).indexOf(h) >= 0){ teacherOk = true; ov.remove(); teacherPanel(); }
+      else { ov.querySelector('#pinMsg').textContent = 'Wrong PIN.'; inp.value = ''; }
+    });
+  }
+  ok.addEventListener('click', go);
+  inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
+}
+function teacherPanel(){
+  var T = teacherData();
+  var p = el('div', {id:'teacherPanel', role:'dialog', 'aria-modal':'true', 'aria-label':'Teacher mode'});
+  var cur = S.progress;
+  var rows = '';
+  if (T) T.sol.forEach(function(s, i){
+    rows += '<tr class="' + (i === cur ? 'cur' : '') + '"><td><b>' + (i < 7 ? i + 1 : 'F') + '</b> ' + esc(HATCHES[i].name) + '</td><td>' + s.map(esc).join('<br>') + '</td><td><b>' + (i < 7 ? LETTERS[i] : '–') + '</b></td></tr>';
+  });
+  var status = S.started ? ('Team: <b>' + esc(S.team) + '</b> · Hatches open: <b>' + Math.min(S.progress, 8) + ' / 8</b> · Hints used: <b>' + S.hints.length + '</b> · Oxygen: <b>' + (remaining() < 0 ? '+' + fmt(-remaining()) + ' overtime' : fmt(remaining())) + '</b>') : 'The game has not started yet.';
+  var card = el('div', {class:'card'}, [
+    el('div', {class:'row', style:'justify-content:space-between'}, [el('h2', {text:'Teacher mode'}), el('button', {type:'button', class:'btn sec', style:'color:#0b2233;background:#e6f3f5', text:'Close', onclick:function(){ p.remove(); }})]),
+    el('p', {html:status}),
+    el('div', {class:'row'}, [
+      el('button', {type:'button', class:'btn dark', text: cur < 8 ? 'Skip hatch ' + (cur < 7 ? cur + 1 : '(final)') : 'All hatches open', disabled: !S.started || cur >= 8 ? true : null, onclick:function(){
+        p.remove(); solve(S.progress, true);
+      }}),
+      el('button', {type:'button', class:'btn dark', text:'End cooldown', disabled: lockLeft() > 0 ? null : true, onclick:function(){ S.lockUntil = 0; save(); p.remove(); tick(); }}),
+      el('button', {type:'button', class:'btn', text:'Reset game', onclick:function(){
+        modal('Reset game?', '<p>All progress of this team on this iPad will be deleted.</p>', [['Cancel', null, 'sec'], ['Reset', function(){
+          try { localStorage.removeItem(STORE); } catch (e) {}
+          S = fresh(); p.remove(); location.reload();
+        }]]);
+      }})
+    ]),
+    el('h3', {text:'All solutions'}),
+    T ? el('table', {class:'sol', html:'<thead><tr><th>Hatch</th><th>Solution</th><th>Letter</th></tr></thead><tbody>' + rows + '</tbody>'}) : el('p', {text:'Solutions could not be loaded.'})
+  ]);
+  p.appendChild(card);
+  document.body.appendChild(p);
+}
+
+/* ===================== BACKGROUND ===================== */
+(function bg(){
+  var b = $('#bg');
+  [8, 38, 70].forEach(function(x){ var r = el('div', {class:'ray'}); r.style.left = x + '%'; b.appendChild(r); });
+  for (var i = 0; i < 14; i++){
+    var s = 8 + Math.random() * 18, d = el('div', {class:'bubble'});
+    d.style.left = (Math.random() * 100) + '%'; d.style.width = d.style.height = s + 'px';
+    d.style.animationDuration = (14 + Math.random() * 16) + 's'; d.style.animationDelay = (-Math.random() * 25) + 's';
+    b.appendChild(d);
+  }
+})();
+
+/* ===================== INIT ===================== */
+renderSound();
+setupTeacher();
+if (!S.started) renderStart();
+else if (S.finished || S.view === 'end') renderEnd();
+else if (typeof S.view === 'number' && S.view <= S.progress && S.view < 8) openHatch(S.view);
+else renderMap();
+setInterval(tick, 250);
+
+})();
+</script>
+</body>
+</html>
